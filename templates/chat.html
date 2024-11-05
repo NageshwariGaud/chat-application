@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat Room</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='chat.css') }}">
+
+</head>
+<body>
+    <h2>Chat Room</h2>
+    <div id="chat-window" style="border:1px solid #000; height:400px; overflow-y:auto;"></div>
+    <input type="text" id="message" placeholder="Type a message">
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="logout()">Logout</button>
+
+    <script>
+        const username = "{{ username }}";
+        const room = "general";
+        const socket = io.connect();
+
+        socket.emit('join', { username: username, room: room });
+
+        socket.on('message', (data) => {
+            $('#chat-window').append(`<p><strong>${data.username}:</strong> ${data.message}</p>`);
+        });
+
+        function sendMessage() {
+            const message = $('#message').val();
+            socket.emit('message', { username: username, room: room, message: message });
+            $('#message').val('');
+        }
+
+        function logout() {
+            socket.emit('leave', { username: username, room: room });
+            window.location.href = "/logout";
+        }
+    </script>
+</body>
+</html>
